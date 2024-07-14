@@ -1,0 +1,14 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /identity
+
+spring:
+  datasource:
+    url: "jdbc:mysql://localhost:3306/datvip9x"
+    username: root
+    password: datvip9x
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
