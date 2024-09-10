@@ -28,11 +28,12 @@ public class UserController {
 
     @PostMapping
     ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request){
-       ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
 
+       return ApiResponse.<UserResponse>builder()
 
-       apiResponse.setResult(userService.createUser(request));
-       return apiResponse;
+               .result(userService.createUser(request))
+               .build();
+
     }
     @GetMapping
     ApiResponse<List<UserResponse>> getUsers(){
@@ -53,11 +54,13 @@ public class UserController {
     @GetMapping("/myInfo")
     ApiResponse<UserResponse> getMyInfo(){
 
-        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(userService.getMyInfo());
+//        ApiResponse<UserResponse> apiResponse = new ApiResponse<>();
+//        apiResponse.setResult(userService.getMyInfo());
 
 
-        return apiResponse;
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.getMyInfo())
+                .build();
     }
 
 
