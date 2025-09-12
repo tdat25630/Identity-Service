@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import spring_learn.demo.Service.AuthenticationService;
+import spring_learn.demo.dto.request.LogoutRequest;
+import spring_learn.demo.dto.request.RefreshRequest;
 import spring_learn.demo.dto.response.ApiResponse;
 import spring_learn.demo.dto.request.AuthenticationRequest;
 import spring_learn.demo.dto.request.IntrospectRequest;
@@ -48,6 +50,32 @@ public class AuthenticationController {
                 .result(result)
 
                 .build();
+    }
+
+    @PostMapping("/logout")
+    ApiResponse<Void>logout(@RequestBody LogoutRequest request)
+            throws ParseException, JOSEException {
+         authenticationService.logout(request);
+        return ApiResponse.<Void>builder()
+
+
+                .build();
+    }
+
+    @PostMapping("/refresh")
+    ApiResponse<AuthenticationResponse>authenticate(@RequestBody RefreshRequest request) throws ParseException, JOSEException {
+        var result =  authenticationService.refreshToken(request);
+        ApiResponse<AuthenticationResponse> apiResponse = new ApiResponse<>();
+
+
+        apiResponse.setResult(result);
+
+        return apiResponse;
+
+//       return ApiResponse.<AuthenticationResponse>builder()
+//               .result(result)
+//
+//               .build();
     }
 
 

@@ -5,10 +5,14 @@ server:
 
 spring:
   datasource:
-    url: "jdbc:mysql://localhost:3306/datvip9x"
+    url: "jdbc:mysql://localhost:3306/identity_service"
     username: root
     password: datvip9x
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+jwt:
+  signerKey: "rxy2mp5mdVxFh+xm3yxiDlOqix7Fcr0DxViTx4zAECdJslJLXtbA0BKgkezurisb"
+  valid-duration: 3600
+  refreshable-duration: 360000

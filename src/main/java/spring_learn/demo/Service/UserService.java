@@ -15,6 +15,7 @@ import spring_learn.demo.enums.Role;
 import spring_learn.demo.exception.AppException;
 import spring_learn.demo.exception.ErrorCode;
 import spring_learn.demo.mapper.UserMapper;
+import spring_learn.demo.repository.RoleRepository;
 import spring_learn.demo.repository.UserRepository;
 
 import java.util.HashSet;
@@ -30,6 +31,7 @@ public class UserService {
 
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
 
     public UserResponse createUser(UserCreationRequest request){
 
@@ -45,7 +47,7 @@ public class UserService {
 
         HashSet<String> roles = new HashSet<>();
         roles.add(Role.USER.name());
-        user.setRoles(roles);
+//        user.setRoles(roles);
 
 
 //        user.setUsername(request.getUsername());
@@ -92,6 +94,9 @@ public class UserService {
                 new RuntimeException("User not found"));
 
         userMapper.updateUser(user,request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        var roles = roleRepository.findAllById(request.getRoles());
+        user.setRoles(new HashSet<>(roles));
 
 //        user.setPassword(request.getPassword());
 //        user.setFirstName(request.getFirstName());

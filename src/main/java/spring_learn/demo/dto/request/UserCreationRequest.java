@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import spring_learn.demo.validation.DobConstraint;
 
 import java.time.LocalDate;
 
@@ -21,6 +22,8 @@ public class UserCreationRequest {
     private String password;
     private String firstName;
     private String lastName;
+
+    @DobConstraint(min = 18,message = "INVALID_DOB")
     private LocalDate dob;
 
 

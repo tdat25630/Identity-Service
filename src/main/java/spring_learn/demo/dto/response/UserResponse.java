@@ -1,9 +1,8 @@
 package spring_learn.demo.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import spring_learn.demo.entity.Role;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -12,12 +11,13 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserResponse {
-    private String id;
-    private String username;
-    private String firstName;
-    private String lastName;
-    private LocalDate dob;
-    private Set<String> roles;
+     String id;
+     String username;
+     String firstName;
+     String lastName;
+     LocalDate dob;
+     Set<RoleResponse> roles;
 
 }

@@ -1,10 +1,8 @@
 package spring_learn.demo.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -14,13 +12,14 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @Entity
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Role {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String name;
-    private String description;
+
+     String name;
+     String description;
 
     @ManyToMany
     Set<Permission> permissions;

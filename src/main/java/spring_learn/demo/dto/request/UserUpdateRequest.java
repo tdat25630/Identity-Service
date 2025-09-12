@@ -4,8 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import spring_learn.demo.validation.DobConstraint;
 
 import java.time.LocalDate;
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,8 +18,9 @@ public class UserUpdateRequest {
     private String password;
     private String firstName;
     private String lastName;
+    @DobConstraint(min = 18, message = "INVALID_DOB")
     private LocalDate dob;
-
+    private List<String> roles;
 
 
 
