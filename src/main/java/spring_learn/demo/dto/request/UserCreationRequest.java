@@ -1,5 +1,6 @@
 package spring_learn.demo.dto.request;
 
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +17,7 @@ import java.time.LocalDate;
 
 public class UserCreationRequest {
     @Size(min = 5, message = "USERNAME_NOT_LONG_ENOUGH")
+    @Pattern(regexp = "\\S+", message = "USERNAME_CANNOT_CONTAIN_SPACES")
     private String username;
 
     @Size(min = 8,message = "PASSWORD_NOT_LONG_ENOUGH")

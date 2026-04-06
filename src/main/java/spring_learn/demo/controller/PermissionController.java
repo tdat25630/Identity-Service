@@ -1,6 +1,7 @@
 package spring_learn.demo.controller;
 
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/permissions")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class PermissionController {
 
     private final PermissionService permissionService;

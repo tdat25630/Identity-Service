@@ -17,6 +17,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import spring_learn.demo.DAL.DAOImpl.InvalidatedTokenDAOImpl;
+import spring_learn.demo.DAL.DAOImpl.UserDAOJpaImpl;
 import spring_learn.demo.dto.request.LogoutRequest;
 import spring_learn.demo.dto.request.RefreshRequest;
 import spring_learn.demo.entity.InvalidatedToken;
@@ -43,8 +45,8 @@ import java.util.UUID;
 public class AuthenticationService {
 
     private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
-    private final UserRepository userRepository;
-    private final InvalidatedTokenRepository invalidatedTokenRepository;
+    private final UserDAOJpaImpl userDAOJpa;
+    private final InvalidatedTokenDAOImpl invalidatedTokenDAOImpl;
 
 
     @NonFinal
@@ -83,7 +85,7 @@ try {
 
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        var user = userRepository.findByUsername(request.getUsername()).orElseThrow(()->
+        var user = userDAOJpa.findByUsername(request.getUsername()).orElseThrow(()->
                 new AppException(ErrorCode.USER_NOT_EXISTED));
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated =  passwordEncoder.matches(request.getPassword(), user.getPassword());
@@ -112,7 +114,7 @@ try {
             .build();
 
 
-    invalidatedTokenRepository.save(invalidatedToken);
+    invalidatedTokenDAOImpl.save(invalidatedToken);
 
 }catch (AppException e ){
     log.info("Token already expired");
@@ -134,10 +136,10 @@ try {
                 .build();
 
 
-        invalidatedTokenRepository.save(invalidatedToken);
+        invalidatedTokenDAOImpl.save(invalidatedToken);
 
         var username = signJWT.getJWTClaimsSet().getSubject();
-        var user = userRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
+        var user = userDAOJpa.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
 
         var token = generateToken(user);
 
@@ -167,7 +169,7 @@ try {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
-       if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID())){
+       if (invalidatedTokenDAOImpl.existsById(signedJWT.getJWTClaimsSet().getJWTID())){
            throw new AppException(ErrorCode.UNAUTHORIZED);
        }
 

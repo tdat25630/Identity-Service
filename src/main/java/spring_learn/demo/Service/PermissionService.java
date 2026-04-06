@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import spring_learn.demo.DAL.DAOImpl.PermissionDAOJpaImpl;
 import spring_learn.demo.dto.request.PermissionRequest;
 import spring_learn.demo.dto.request.UserCreationRequest;
 import spring_learn.demo.dto.request.UserUpdateRequest;
@@ -30,23 +31,23 @@ import java.util.List;
 @Slf4j
 public class PermissionService {
 
-        private final PermissionRepository permissionRepository;
+        private final PermissionDAOJpaImpl permissionDAOJpa;
 
         private final PermissionMapper permissionMapper;
 
         public PermissionResponse create(PermissionRequest request){
             Permission permission = permissionMapper.toPermission(request);
-            permission = permissionRepository.save(permission);
+            permission = permissionDAOJpa.save(permission);
             return permissionMapper.toPermissionResponse(permission);
         }
 
         public List<PermissionResponse>getALl(){
-            var permission = permissionRepository.findAll();
+            var permission = permissionDAOJpa.findAll();
 
             return permission.stream().map(permissionMapper::toPermissionResponse).toList();
         }
 
         public void delete(String name){
-            permissionRepository.deleteById(name);
+            permissionDAOJpa.deleteById(name);
         }
 }

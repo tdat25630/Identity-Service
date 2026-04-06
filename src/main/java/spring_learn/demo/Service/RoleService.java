@@ -4,6 +4,8 @@ package spring_learn.demo.Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import spring_learn.demo.DAL.DAOImpl.PermissionDAOJpaImpl;
+import spring_learn.demo.DAL.DAOImpl.RoleDAOJpaImpl;
 import spring_learn.demo.dto.request.RoleRequest;
 import spring_learn.demo.dto.response.RoleResponse;
 import spring_learn.demo.mapper.RoleMapper;
@@ -18,8 +20,8 @@ import java.util.List;
 @Slf4j
 public class RoleService {
 
-    private final RoleRepository roleRepository;
-    private final PermissionRepository permissionRepository;
+    private final RoleDAOJpaImpl roleDAOJpa;
+    private final PermissionDAOJpaImpl permissionDAOJpa;
     private final RoleMapper roleMapper;
 
 
@@ -28,11 +30,11 @@ public class RoleService {
 
         var role = roleMapper.toRole(request);
 
-        var permission = permissionRepository.findAllById(request.getPermissions());
+        var permission = permissionDAOJpa.findAllById(request.getPermissions());
 
         role.setPermissions(new HashSet<>(permission));
 
-        role = roleRepository.save(role);
+        role = roleDAOJpa.save(role);
 
         return roleMapper.toRoleResponse(role);
 
@@ -40,13 +42,13 @@ public class RoleService {
     }
 
     public List<RoleResponse> getAll(){
-        return roleRepository.findAll().
+        return roleDAOJpa.findAll().
                 stream().map(roleMapper::toRoleResponse)
                 .toList();
     }
 
     public void delete(String role){
-        roleRepository.deleteById(role);
+        roleDAOJpa.deleteById(role);
 
     }
 

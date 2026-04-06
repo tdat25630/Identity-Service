@@ -2,11 +2,16 @@ package spring_learn.demo.Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import spring_learn.demo.DAL.DAOImpl.RoleDAOJpaImpl;
+import spring_learn.demo.DAL.DAOImpl.UserDAOJpaImpl;
+import spring_learn.demo.dto.response.PageResponse;
 import spring_learn.demo.entity.User;
 import spring_learn.demo.dto.request.UserCreationRequest;
 import spring_learn.demo.dto.request.UserUpdateRequest;
@@ -14,6 +19,7 @@ import spring_learn.demo.dto.response.UserResponse;
 import spring_learn.demo.enums.Role;
 import spring_learn.demo.exception.AppException;
 import spring_learn.demo.exception.ErrorCode;
+import spring_learn.demo.mapper.PageMapper;
 import spring_learn.demo.mapper.UserMapper;
 import spring_learn.demo.repository.RoleRepository;
 import spring_learn.demo.repository.UserRepository;
@@ -27,16 +33,17 @@ import java.util.Optional;
 @Slf4j
 public class UserService {
 
-    private final UserRepository userRepository;
+    private final UserDAOJpaImpl userDAOJpa;
 
     private final UserMapper userMapper;
+    private final PageMapper pageMapper;
     private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepository;
+    private final RoleDAOJpaImpl roleDAOJpa;
 
     public UserResponse createUser(UserCreationRequest request){
 
 
-        if (userRepository.existsByUsername(request.getUsername())){
+        if (userDAOJpa.existsByUsername(request.getUsername())){
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
@@ -59,14 +66,17 @@ public class UserService {
 //        HashSet<String> roles = new HashSet<>();
 //        user.setRoles();
 
-        return userMapper.toUserResponse(userRepository.save(user));
+        return userMapper.toUserResponse(userDAOJpa.save(user));
     }
 
 
     @PreAuthorize("hasRole('ADMIN')")
-    public List<UserResponse> getUsers(){
+    public PageResponse<UserResponse> getUsers(Pageable pageable){
         log.info("In method get Users");
-        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
+
+        Page<User> page = userDAOJpa.findAll(pageable);
+
+        return pageMapper.toPageResponse(page, userMapper::toUserResponse);
     }
 
     public UserResponse getMyInfo(){
@@ -74,7 +84,7 @@ public class UserService {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
 
-        User user = userRepository.findByUsername(name).orElseThrow(
+        User user = userDAOJpa.findByUsername(name).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         return userMapper.toUserResponse(user);
@@ -84,18 +94,18 @@ public class UserService {
 
     @PostAuthorize("returnObject.username == authentication.name || hasRole('ADMIN')")
     public UserResponse getUser(String id){
-        return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(()->
+        return userMapper.toUserResponse(userDAOJpa.findById(id).orElseThrow(()->
                 new RuntimeException("User not found")));
     }
 
 
     public UserResponse updateUser(String userId, UserUpdateRequest request){
-        User user = userRepository.findById(userId).orElseThrow(()->
+        User user = userDAOJpa.findById(userId).orElseThrow(()->
                 new RuntimeException("User not found"));
 
         userMapper.updateUser(user,request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        var roles = roleRepository.findAllById(request.getRoles());
+        var roles = roleDAOJpa.findAllById(request.getRoles());
         user.setRoles(new HashSet<>(roles));
 
 //        user.setPassword(request.getPassword());
@@ -104,10 +114,18 @@ public class UserService {
 //        user.setDob(request.getDob());
 
 
-        return userMapper.toUserResponse(userRepository.save(user));
+        return userMapper.toUserResponse(userDAOJpa.save(user));
     }
 
     public void deleteUser(String userId){
-        userRepository.deleteById(userId);
+        userDAOJpa.deleteById(userId);
+    }
+
+
+    public PageResponse<UserResponse> searchUsers(String keyword, Pageable pageable) {
+
+        Page<User> page = userDAOJpa.findByUserNameV2(keyword, pageable);
+
+        return pageMapper.toPageResponse(page, userMapper::toUserResponse);
     }
 }

@@ -18,6 +18,9 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import spring_learn.demo.enums.Role;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -33,6 +36,9 @@ public class SecurityConfig {
             "/auth/logout",
             "/auth/introspect",
     "/auth/logout",
+            "/v3/api-docs",
+            "/v3/api-docs/**",
+            "/swagger-ui.html",
             "/auth/refresh"};
 
 
@@ -45,7 +51,13 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity.authorizeHttpRequests(request ->
-                request.requestMatchers(HttpMethod.POST,PUBLIC_ENDPOINT).permitAll()
+                request
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                ).permitAll()
+
+                        .requestMatchers(HttpMethod.POST,PUBLIC_ENDPOINT).permitAll()
 
                         .anyRequest().authenticated());
 
@@ -60,6 +72,19 @@ public class SecurityConfig {
                 );
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
         return httpSecurity.build();
+    }
+
+    @Bean
+    public CorsFilter corsFilter() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.addAllowedOrigin("http://localhost:8080");
+        corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.addAllowedHeader("*");
+
+        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
+        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
+
+        return new CorsFilter(urlBasedCorsConfigurationSource);
     }
 
     @Bean

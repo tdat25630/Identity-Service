@@ -1,9 +1,13 @@
 package spring_learn.demo.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +16,7 @@ import spring_learn.demo.Service.UserService;
 import spring_learn.demo.dto.response.ApiResponse;
 import spring_learn.demo.dto.request.UserCreationRequest;
 import spring_learn.demo.dto.request.UserUpdateRequest;
+import spring_learn.demo.dto.response.PageResponse;
 import spring_learn.demo.dto.response.UserResponse;
 
 import java.util.List;
@@ -19,6 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
 
 
@@ -36,19 +42,21 @@ public class UserController {
 
     }
     @GetMapping
-    ApiResponse<List<UserResponse>> getUsers(){
+    public ApiResponse<PageResponse<UserResponse>> getUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        ApiResponse<List<UserResponse>> apiResponse = new ApiResponse<>();
+        log.info("Username: {}", authentication.getName());
+        authentication.getAuthorities()
+                .forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
 
-        log.info("Username: {}",authentication.getName());
-        authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
+        Pageable pageable = PageRequest.of(page, size);
 
-
-        apiResponse.setResult(userService.getUsers());
-
-        return apiResponse;
-
+        return ApiResponse.<PageResponse<UserResponse>>builder()
+                .result(userService.getUsers(pageable))
+                .build();
     }
 
     @GetMapping("/myInfo")
@@ -81,6 +89,19 @@ public class UserController {
         apiResponse.setMessage("User deleted successfully");
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(apiResponse);
+    }
+
+    @GetMapping("/searchUsername")
+    public ApiResponse<PageResponse<UserResponse>> searchByUsername(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        return ApiResponse.<PageResponse<UserResponse>>builder()
+                .result(userService.searchUsers(keyword, pageable))
+                .build();
     }
 
 }

@@ -1,6 +1,7 @@
 package spring_learn.demo.controller;
 
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import spring_learn.demo.Service.RoleService;
@@ -13,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/roles")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class RoleController {
 
     private final RoleService roleService;
